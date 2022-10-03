@@ -1,0 +1,69 @@
+archetype market_dao
+
+asset tokens {
+  symbol: string;
+  name: string;
+  ledger: iterable_big_map<address, nat >;
+} 
+
+asset proposal {
+    title: string;
+    description:  string;
+    voting_token_source: string;
+    voting_token_symbol: string;
+    token_to_send: string;
+    send_to: address;
+    amt: nat;
+    election_date: date;
+    pro_votes: nat;
+    con_votes: nat;
+}
+
+entry xfer(sym: string, %from : address, %to : address, amount : nat) {
+  no transfer
+  require {
+    r: (tokens[sym].ledger[%from] ? the : 0) > amount otherwise "INSUFFICIENT_TOKENS"
+  }
+  effect { //This is the ugliest non-ASM code in the history of computing.
+    var x ?= tokens[sym].ledger[%from];
+    x -= amount;
+    tokens[sym].ledger.remove(%from);
+    tokens[sym].ledger.put(%from, x);
+    x += 2 * amount;
+    tokens[sym].ledger.remove(%to);
+    tokens[sym].ledger.put(%to, x);
+  }
+}
+
+entry add_token(sym: string, nam: string) {
+  no transfer
+  effect{
+    tokens.put({symbol=sym;name=nam;ledger=[(tz1000000000000000000000000000000000,0)]});
+  }
+}
+
+entry add_proposal (titl: string, desc: string, vote_token_source: string, vote_token_symbol: string, tok_to_send: string, sendto: address, qty: nat, end_date: date) {
+  no transfer
+
+}
+
+entry vote (prop_title: string, pro:bool, num: nat) {
+  no transfer
+  constant {
+    token_ledger is get_prop_vote_ledger(prop_title);
+    source_tokens is token_ledger[source]
+  }
+  require {
+    r1: source_tokens ? the >= num : false otherwise "MORE_VOTES_CAST_THAN_ARE_AVAILABLE";
+  }
+}
+
+entry execute_prop (prop_title: string) {
+
+}
+
+function get_prop_vote_ledger(prop_title : string) : iterable_big_map<address, nat > {
+  var prop ?= proposal[prop_title];
+  var vote_token = prop.voting_token_symbol;
+  return tokens[vote_token].ledger
+}
