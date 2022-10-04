@@ -21,13 +21,14 @@ asset proposal {
 }
 
 //this should only be called internally, which the first requirement should take care of
+//Declare private at next release
 entry xfer(sym: string, %from : address, %to : address, amount : nat) {
   no transfer
   require {
     r: source = self_address otherwise "CAN_ONLY_BE_CALLED_INTERNALLY";
     r0: (tokens[sym].ledger[%from] ? the : 0) > amount otherwise "INSUFFICIENT_TOKENS"
   }
-  effect { //This is the ugliest non-ASM code in the history of computing.
+  effect { //Fix at next release
     var x ?= tokens[sym].ledger[%from];
     x -= amount;
     tokens[sym].ledger.remove(%from);
