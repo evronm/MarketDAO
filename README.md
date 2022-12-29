@@ -6,3 +6,5 @@ If there's demand, someone else can port it to the EVM.  I'm too old for that ki
 For the basic ideas behind the system, see the one_pager.md document.
 
 Status: Embryonic, and I'm learning Archetype as I go.  I haven't even decided on a testing framework (no, I don't do TDD; sue me).
+
+Substatus:  Waiting for the Archetype team to make some changes I need.  This is currently on hold.
